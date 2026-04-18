@@ -36,9 +36,21 @@ Esse comando único:
 
 Pra desativar o auto-start: clica no engrenagem dentro do dropdown > desmarcar "Iniciar no login". Pra desinstalar: `rm -rf "/Applications/Claude Sessions.app"`.
 
+## Detecção precisa de working via plugin (recomendado)
+
+O heurístico de mtime tem um buraco: enquanto o modelo "pensa" (entre o prompt e o primeiro token), nada escreve no transcript e a sessão parece idle. Pra resolver isso tem o plugin companheiro **[`plugin/`](./plugin)** que usa hooks do Claude Code (`UserPromptSubmit` → working=true, `Stop` → working=false, etc) e escreve o estado autoritativo em `~/.claude/sessions-state/<session_id>.json`.
+
+O menu bar app lê esse diretório como source of truth e só cai no mtime como fallback. Instalação:
+
+```bash
+ln -s "$(pwd)/plugin" ~/.claude/plugins/marketplace/claude-sessions-tracker
+```
+
+Detalhes em [plugin/README.md](./plugin/README.md).
+
 ## Como funciona por baixo
 
-**Detecção de sessões.** Faz scan de `~/.claude/projects/<encoded-cwd>/*.jsonl` filtrando arquivos modificados nos últimos 30 min. Uma sessão é considerada "working" se o mtime do JSONL é menor que 2 segundos. Modelo, tokens e `cwd` vêm do próprio transcript. Subagentes ativos são detectados por `tool_use` do tipo `Task`/`Agent` ainda sem `tool_result` correspondente.
+**Detecção de sessões.** Faz scan de `~/.claude/projects/<encoded-cwd>/*.jsonl` filtrando arquivos modificados nos últimos 30 min. Se o plugin estiver instalado, `isWorking` vem do state file do plugin; caso contrário, cai no heurístico: uma sessão é "working" se o mtime do JSONL é menor que 2 segundos. Modelo, tokens e `cwd` vêm do próprio transcript. Subagentes ativos são detectados por `tool_use` do tipo `Task`/`Agent` ainda sem `tool_result` correspondente.
 
 **Usage.** Lê o access token OAuth da Keychain (`Claude Code-credentials`, fallback pra `~/.claude/.credentials.json`) e chama `GET https://api.anthropic.com/api/oauth/usage` com `anthropic-beta: oauth-2025-04-20`. Cache de 180s, floor de 30s entre chamadas pra não abusar do rate limit.
 

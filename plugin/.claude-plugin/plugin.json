@@ -1,0 +1,9 @@
+{
+  "name": "claude-sessions-tracker",
+  "description": "Tracks per-session working/idle state so external tools (e.g. the Claude Sessions menu bar app) can show precise status, including during thinking.",
+  "version": "0.1.0",
+  "author": {
+    "name": "hassek",
+    "url": "https://github.com/hassekf/claude-sessions-menubar"
+  }
+}

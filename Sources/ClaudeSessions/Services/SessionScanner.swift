@@ -18,6 +18,7 @@ enum SessionScanner {
 
         let now = Date()
         let cutoff = now.addingTimeInterval(-activeCutoff)
+        let states = SessionStateReader.readAll()
         var sessions: [Session] = []
 
         for projectDir in projectDirs {
@@ -34,8 +35,14 @@ enum SessionScanner {
                       let mtime = values.contentModificationDate,
                       mtime > cutoff else { continue }
 
+                let sessionId = file.deletingPathExtension().lastPathComponent
                 let idleSeconds = Int(now.timeIntervalSince(mtime))
-                let isWorking = now.timeIntervalSince(mtime) < workingThreshold
+                let isWorking: Bool = {
+                    if let state = states[sessionId] {
+                        return state.working
+                    }
+                    return now.timeIntervalSince(mtime) < workingThreshold
+                }()
 
                 let parsed = (try? JSONLParser.parse(url: file)) ?? .empty
 
@@ -46,7 +53,7 @@ enum SessionScanner {
                 }()
 
                 let session = Session(
-                    id: file.deletingPathExtension().lastPathComponent,
+                    id: sessionId,
                     projectPath: decodedPath,
                     projectName: projectName,
                     model: prettyModel(parsed.model),
