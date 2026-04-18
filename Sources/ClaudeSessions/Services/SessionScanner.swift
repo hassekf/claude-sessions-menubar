@@ -1,7 +1,9 @@
 import Foundation
 
 enum SessionScanner {
-    static let activeCutoff: TimeInterval = 30 * 60
+    /// Fallback window (no plugin): how recently a JSONL must have been
+    /// modified to be considered an active session.
+    static let activeCutoff: TimeInterval = 5 * 60
     static let workingThreshold: TimeInterval = 2.0
 
     static var projectsDirectory: URL {
@@ -19,6 +21,7 @@ enum SessionScanner {
         let now = Date()
         let cutoff = now.addingTimeInterval(-activeCutoff)
         let states = SessionStateReader.readAll()
+        let pluginInstalled = SessionStateReader.isPluginInstalled()
         var sessions: [Session] = []
 
         for projectDir in projectDirs {
@@ -36,11 +39,17 @@ enum SessionScanner {
                       mtime > cutoff else { continue }
 
                 let sessionId = file.deletingPathExtension().lastPathComponent
+                let state = states[sessionId]
+
+                // When the plugin is installed, absence of a state file means
+                // the session has ended (SessionEnd hook cleaned up). Skip.
+                if pluginInstalled && state == nil {
+                    continue
+                }
+
                 let idleSeconds = Int(now.timeIntervalSince(mtime))
                 let isWorking: Bool = {
-                    if let state = states[sessionId] {
-                        return state.working
-                    }
+                    if let state { return state.working }
                     return now.timeIntervalSince(mtime) < workingThreshold
                 }()
 

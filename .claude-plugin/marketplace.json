@@ -1,0 +1,14 @@
+{
+  "name": "claude-sessions-menubar",
+  "owner": {
+    "name": "hassek",
+    "url": "https://github.com/hassekf"
+  },
+  "plugins": [
+    {
+      "name": "claude-sessions-tracker",
+      "source": "./plugin",
+      "description": "Tracks per-session working/idle state via hooks so the Claude Sessions menu bar app can show precise status (including thinking time)."
+    }
+  ]
+}

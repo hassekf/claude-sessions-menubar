@@ -21,6 +21,19 @@ enum SessionStateReader {
             .appendingPathComponent(".claude/sessions-state")
     }
 
+    /// Returns true when the `claude-sessions-tracker` plugin is installed
+    /// in Claude Code. When installed, the state file IS the source of
+    /// truth — a session without a state file is considered ended, even if
+    /// its JSONL was modified recently.
+    static func isPluginInstalled() -> Bool {
+        let url = FileManager.default.homeDirectoryForCurrentUser
+            .appendingPathComponent(".claude/plugins/installed_plugins.json")
+        guard let data = try? Data(contentsOf: url),
+              let obj = try? JSONSerialization.jsonObject(with: data) as? [String: Any],
+              let plugins = obj["plugins"] as? [String: Any] else { return false }
+        return plugins.keys.contains { $0.hasPrefix("claude-sessions-tracker@") }
+    }
+
     static func readAll() -> [String: State] {
         let fm = FileManager.default
         guard let entries = try? fm.contentsOfDirectory(

@@ -40,11 +40,14 @@ Pra desativar o auto-start: clica no engrenagem dentro do dropdown > desmarcar "
 
 O heurístico de mtime tem um buraco: enquanto o modelo "pensa" (entre o prompt e o primeiro token), nada escreve no transcript e a sessão parece idle. Pra resolver isso tem o plugin companheiro **[`plugin/`](./plugin)** que usa hooks do Claude Code (`UserPromptSubmit` → working=true, `Stop` → working=false, etc) e escreve o estado autoritativo em `~/.claude/sessions-state/<session_id>.json`.
 
-O menu bar app lê esse diretório como source of truth e só cai no mtime como fallback. Instalação:
+O menu bar app lê esse diretório como source of truth e só cai no mtime como fallback. Instalação (no Claude Code, em qualquer sessão):
 
-```bash
-ln -s "$(pwd)/plugin" ~/.claude/plugins/marketplace/claude-sessions-tracker
+```text
+/plugin marketplace add hassekf/claude-sessions-menubar
+/plugin install claude-sessions-tracker@claude-sessions-menubar
 ```
+
+Os hooks valem **globalmente** — todas as sessões futuras do Claude Code vão alimentar o state file automaticamente. Sem instalar o plugin, o app cai num heurístico de mtime de 5 min (menos preciso, mas funcional).
 
 Detalhes em [plugin/README.md](./plugin/README.md).
 

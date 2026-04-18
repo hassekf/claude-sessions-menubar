@@ -39,15 +39,16 @@ Escrita é atômica (`tempfile` + `os.replace`) pra evitar leituras parciais.
 
 ## Instalação
 
-**Local (dev):**
+Dentro de qualquer sessão do Claude Code:
 
-```bash
-ln -s "$(pwd)" ~/.claude/plugins/marketplace/claude-sessions-tracker
+```text
+/plugin marketplace add hassekf/claude-sessions-menubar
+/plugin install claude-sessions-tracker@claude-sessions-menubar
 ```
 
-Depois abre o Claude Code e confirma com `/plugins` que apareceu.
+Os hooks são **globais** — todas as sessões futuras (inclusive em outros projetos) passam a alimentar o state file automaticamente. Pra confirmar: `/plugin` e veja se o `claude-sessions-tracker` aparece como enabled.
 
-**Ou via flag temporária:**
+**Dev local (sem marketplace):**
 
 ```bash
 claude --plugin-dir "$(pwd)"
