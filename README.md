@@ -52,7 +52,7 @@ Detalhes em [plugin/README.md](./plugin/README.md).
 
 **Detecção de sessões.** Faz scan de `~/.claude/projects/<encoded-cwd>/*.jsonl` filtrando arquivos modificados nos últimos 30 min. Se o plugin estiver instalado, `isWorking` vem do state file do plugin; caso contrário, cai no heurístico: uma sessão é "working" se o mtime do JSONL é menor que 2 segundos. Modelo, tokens e `cwd` vêm do próprio transcript. Subagentes ativos são detectados por `tool_use` do tipo `Task`/`Agent` ainda sem `tool_result` correspondente.
 
-**Usage.** Lê o access token OAuth da Keychain (`Claude Code-credentials`, fallback pra `~/.claude/.credentials.json`) e chama `GET https://api.anthropic.com/api/oauth/usage` com `anthropic-beta: oauth-2025-04-20`. Cache de 180s, floor de 30s entre chamadas pra não abusar do rate limit.
+**Usage.** Lê o access token OAuth da Keychain (`Claude Code-credentials`, fallback pra `~/.claude/.credentials.json`) e chama `GET https://api.anthropic.com/api/oauth/usage` com `anthropic-beta: oauth-2025-04-20`. Cache de 180s, floor de 30s entre chamadas pra não abusar do rate limit. Abrir a aba Usage força um refresh (respeitando o floor de 30s), então os números ficam sempre frescos quando você olha.
 
 **Ícone da menu bar.** Path do SVG do mascote do Claude foi reescrito à mão como `Shape` SwiftUI e renderizado via `NSImage(size:flipped:)` com `isTemplate = true` — assim o macOS tinta automaticamente de acordo com o tema (dark/light) da menu bar.
 
