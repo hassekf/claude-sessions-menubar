@@ -41,6 +41,9 @@ struct UsageTabView: View {
                 loadingState
             }
         }
+        .onAppear {
+            Task { await state.fetchUsage(force: true) }
+        }
     }
 
     @ViewBuilder
